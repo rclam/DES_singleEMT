@@ -1,0 +1,92 @@
+# ----------------------------------------------------------------------
+# Generate geometry
+# ----------------------------------------------------------------------
+playback 'geometry.jou'
+
+# ----------------------------------------------------------------------
+# Set discretization size
+# ----------------------------------------------------------------------
+volume all size 50000
+volume weak_highres size 10000
+volume normal_highres size 10000
+volume fault_zone size 10000
+
+# ----------------------------------------------------------------------
+# Generate the mesh
+# ----------------------------------------------------------------------
+volume all scheme Tetmesh proximity layers off 
+mesh volume all
+
+# ----------------------------------------------------------------------
+# Create blocks for materials
+# ----------------------------------------------------------------------
+block 1 volume weak_highres weak_lowres
+block 1 name "weak_evp"
+block 2 volume fault_zone normal_lowres normal_highres
+block 2 name "normal_evp"
+
+#/* Define 8 corner points of the box, with this order:
+#      *         4 ------- 7
+#      *        /               /|
+#       *       /              / 6           z^   ^ y
+#       *      0 ------- 3 /             |  /
+#       *      |               |/               | /
+#       *      1 ------- 2                -----> x
+#       *
+#       * Cut-out diagram with boundary flag:
+#       *                    4 ------- 7
+#       *                     | BOUNDZ1 |
+#       *   4 ------- 0 ------- 3   -------   7 ------- 4
+#       *   | BOUNDX0 | BOUNDY0 | BOUNDX1 | BOUNDY1 |
+#       *   5 ------- 1 ------- 2   -------   6 ------- 5
+#       *                     | BOUNDZ0 |
+#       *                    5 ------- 6
+#       */
+# BOUNDX0 = 1, western (left in 2D)
+# BOUNDX1 = 2, eastern (right in 2D)
+# BOUNDY0 = 4, southern
+# BOUNDY1 = 8, northern
+# BOUNDZ0 = 16, bottom
+# BOUNDZ1 = 32, top
+# ----------------------------------------------------------------------
+# Create sideset for BOUNDX0 (western or -x face)
+# ----------------------------------------------------------------------
+sideset 1 add surface 21
+sideset 1 name "BOUNDX0"
+
+# ----------------------------------------------------------------------
+# Create sideset for BOUNDX1 (western or +x face)
+# ----------------------------------------------------------------------
+sideset 2 add surface 22
+sideset 2 name "BOUNDX1"
+
+# ----------------------------------------------------------------------
+# Create sideset for BOUNDX0 (western or -y face)
+# ----------------------------------------------------------------------
+sideset 4 add surface 1, 20
+sideset 4 name "BOUNDY0"
+
+# ----------------------------------------------------------------------
+# Create sideset for BOUNDX0 (western or +y face)
+# ----------------------------------------------------------------------
+sideset 8 add surface 2, 7, 15, 45
+sideset 8 name "BOUNDY1"
+
+# ----------------------------------------------------------------------
+# Create sideset for BOUNDX0 (western or -z face)
+# ----------------------------------------------------------------------
+sideset 16 add surface 19
+sideset 16 name "BOUNDZ0"
+
+# ----------------------------------------------------------------------
+# Create sideset for BOUNDX0 (western or +z face)
+# ----------------------------------------------------------------------
+sideset 32 add surface 3, 18, 35, 36
+sideset 32 name "BOUNDZ1"
+
+# ----------------------------------------------------------------------
+# Export exodus file
+# ----------------------------------------------------------------------
+export mesh "KandS.exo" dimension 3 overwrite
+
+

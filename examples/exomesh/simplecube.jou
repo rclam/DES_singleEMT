@@ -1,0 +1,13 @@
+reset
+brick x 10 y 10 z 10
+volume 1 size 3
+volume all scheme Tetmesh proximity layers off 
+mesh volume all
+block 1 add volume 1 
+Sideset 1 add surface 4 
+Sideset 2 add surface 6 
+Sideset 4 add surface 3 
+Sideset 8 add surface 5 
+Sideset 16 add surface 2 
+Sideset 32 add surface 1 
+export mesh "cube.exo" overwrite 
